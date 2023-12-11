@@ -1,5 +1,5 @@
 html {
-  background: #333;
+  background: #0d1117;
 }
 body {
   margin: 0;
@@ -9,7 +9,7 @@ body::-webkit-scrollbar {
   width: 4px;
 }
 body::-webkit-scrollbar-track {
-  background: #333;
+  background: #0d1117;
 }
 body::-webkit-scrollbar-thumb {
   background-color: #555;

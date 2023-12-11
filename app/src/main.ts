@@ -38,26 +38,38 @@ async function init(socket: WebSocket) {
         case 'show': {
           const content = decoder.decode((await generator.next()).value!);
 
-          socket.send(encoder.encode(JSON.stringify({
-            action: 'show',
-            html: render(content),
-            lcount: (content.match(/(?:\r?\n)/g) || []).length + 1,
-          })));
+          socket.send(
+            encoder.encode(
+              JSON.stringify({
+                action: 'show',
+                html: render(content),
+                lcount: (content.match(/(?:\r?\n)/g) || []).length + 1,
+              }),
+            ),
+          );
 
           break;
         }
         case 'scroll': {
-          socket.send(encoder.encode(JSON.stringify({
-            action,
-            line: decoder.decode((await generator.next()).value!),
-          })));
+          socket.send(
+            encoder.encode(
+              JSON.stringify({
+                action,
+                line: decoder.decode((await generator.next()).value!),
+              }),
+            ),
+          );
           break;
         }
         case 'base': {
-          socket.send(encoder.encode(JSON.stringify({
-            action,
-            base: normalize(decoder.decode((await generator.next()).value!) + '/'),
-          })));
+          socket.send(
+            encoder.encode(
+              JSON.stringify({
+                action,
+                base: normalize(decoder.decode((await generator.next()).value!) + '/'),
+              }),
+            ),
+          );
           break;
         }
         default: {
@@ -118,7 +130,9 @@ async function init(socket: WebSocket) {
     for (const base of [Deno.mainModule, 'file:']) {
       try {
         return await Deno.open(new URL(path, base));
-      } catch (_) { /**/ }
+      } catch (_) {
+        /**/
+      }
     }
   }
 
@@ -166,11 +180,13 @@ async function init(socket: WebSocket) {
   const searchParams = new URLSearchParams({ theme: __args.theme });
   url.search = searchParams.toString();
 
-  open(url.href, { app: app !== 'browser' && app })
-    .catch((e) => {
-      Deno.stderr.writeSync(new TextEncoder().encode(`${[app].flat().join(' ')}: ${e.message}`));
-      Deno.exit();
-    });
+  // Modify app to include the URL
+  const appArgs = app === 'browser' ? [] : [...app, `--app=${url.href}`];
+
+  open(url.href, { app: appArgs }).catch((e) => {
+    Deno.stderr.writeSync(new TextEncoder().encode(`${appArgs.join(' ')}: ${e.message}`));
+    Deno.exit();
+  });
 })();
 
 const win_signals = ['SIGINT', 'SIGBREAK'] as const;
